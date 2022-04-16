@@ -14,21 +14,32 @@ class PartyTests(unittest.TestCase):
     def test_homepage(self):
         result = self.client.get("/")
         self.assertIn(b"board games, rainbows, and ice cream sundaes", result.data)
+        # this test is simply to check any text that is in the homepage to make sure we're in the homepage
 
     def test_no_rsvp_yet(self):
-        # FIXME: Add a test to show we see the RSVP form, but NOT the
+        # Add a test to show we see the RSVP form, but NOT the
         # party details
-        print("FIXME")
+        result = self.client.get("/")
+        self.assertIn(b"Please RSVP", result.data)
+        self.assertNotIn(b"Party Details", result.data)
+        #print("/n*******/n")
+        #print(result.data)
+        #print("/n*******/n")
+        #print(type(result.data))
 
     def test_rsvp(self):
-        result = self.client.post("/rsvp",
-                                  data={"name": "Jane",
-                                        "email": "jane@jane.com"},
-                                  follow_redirects=True)
         # FIXME: Once we RSVP, we should see the party details, but
         # not the RSVP form
-        print("FIXME")
-
+        result = self.client.post("/rsvp",
+                                  data={'name': "Jane", 'email': "jane@jane.com"},
+                                  follow_redirects=True)
+        self.assertIn(b"Yay!", result.data)
+        self.assertIn(b"Party Details", result.data)
+        self.assertNotIn(b"Please RSVP", result.data)
+        #print("/n*******/n")
+        #print(result.data)
+        #print("/n*******/n")
+        #print(type(result.data))
 
 class PartyTestsDatabase(unittest.TestCase):
     """Flask tests that use the database."""
@@ -39,24 +50,25 @@ class PartyTestsDatabase(unittest.TestCase):
         self.client = app.test_client()
         app.config['TESTING'] = True
 
-        # Connect to test database (uncomment when testing database)
-        # connect_to_db(app, "postgresql:///testdb")
+        #Connect to test database (uncomment when testing database)
+        connect_to_db(app, "postgresql:///testdb")
 
-        # Create tables and add sample data (uncomment when testing database)
-        # db.create_all()
-        # example_data()
+        #Create tables and add sample data (uncomment when testing database)
+        db.create_all()
+        example_data()
 
     def tearDown(self):
         """Do at end of every test."""
 
-        # (uncomment when testing database)
-        # db.session.close()
-        # db.drop_all()
+        #(uncomment when testing database)
+        db.session.close()
+        db.drop_all()
 
     def test_games(self):
-        # FIXME: test that the games page displays the game from example_data()
-        print("FIXME")
+        """Test departments page."""
 
+        result = self.client.get("/games")
+        self.assertIn(b"Power Grid", result.data)
 
 if __name__ == "__main__":
     unittest.main()
